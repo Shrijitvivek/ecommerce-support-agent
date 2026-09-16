@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "description": "Sample return/refund/replacement policy knowledge base for the e-commerce support agent demo."
+  },
+  "policies": [
+    {
+      "topic_id": "return_window",
+      "title": "Return window",
+      "keywords": ["return", "return policy", "return window", "days to return", "can i return"],
+      "content": "Items can be returned within 15 days of the delivery date, provided they are unused and in original packaging. Items marked 'final sale' cannot be returned."
+    },
+    {
+      "topic_id": "refund_process",
+      "title": "Refund process",
+      "keywords": ["refund", "money back", "refund policy", "how long refund"],
+      "content": "Approved returns are refunded to the original payment method within 5-7 business days after the returned item is received and inspected at our warehouse."
+    },
+    {
+      "topic_id": "replacement_process",
+      "title": "Replacement process",
+      "keywords": ["replacement", "replace", "exchange", "swap item"],
+      "content": "Customers may request a replacement instead of a refund for defective or incorrect items, subject to stock availability. Replacements ship within 2 business days of the return being received."
+    },
+    {
+      "topic_id": "exceptions",
+      "title": "Non-returnable exceptions",
+      "keywords": ["exceptions", "non returnable", "cannot return", "excluded items", "final sale"],
+      "content": "Perishable goods, gift cards, personal care items, and items marked 'final sale' are not eligible for return, refund, or replacement."
+    },
+    {
+      "topic_id": "damaged_or_defective",
+      "title": "Damaged or defective items",
+      "keywords": ["damaged", "defective", "broken", "not working", "faulty"],
+      "content": "Damaged or defective items can be reported within 30 days of delivery for a free replacement or full refund, regardless of the standard 15-day return window."
+    },
+    {
+      "topic_id": "shipping_returns",
+      "title": "Return shipping cost",
+      "keywords": ["return shipping", "shipping label", "shipping cost", "who pays shipping"],
+      "content": "Return shipping is free for defective or incorrect items. For change-of-mind returns, a flat $5.99 return shipping fee is deducted from the refund."
+    }
+  ]
+}

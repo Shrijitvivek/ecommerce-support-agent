@@ -1,0 +1,68 @@
+{
+  "_meta": {
+    "description": "Sample order records for the e-commerce support agent demo.",
+    "today_for_demo": "2026-09-14"
+  },
+  "orders": [
+    {
+      "order_id": "ORD1001",
+      "customer_id": "CUST01",
+      "product": "Wireless Headphones",
+      "purchase_date": "2026-08-27",
+      "amount": 79.99,
+      "currency": "USD",
+      "status": "delivered",
+      "delivery_date": "2026-08-30"
+    },
+    {
+      "order_id": "ORD1002",
+      "customer_id": "CUST01",
+      "product": "Smart Watch",
+      "purchase_date": "2026-09-05",
+      "amount": 149.50,
+      "currency": "USD",
+      "status": "shipped",
+      "delivery_date": null
+    },
+    {
+      "order_id": "ORD1003",
+      "customer_id": "CUST02",
+      "product": "Bluetooth Speaker",
+      "purchase_date": "2026-06-10",
+      "amount": 45.00,
+      "currency": "USD",
+      "status": "delivered",
+      "delivery_date": "2026-06-14"
+    },
+    {
+      "order_id": "ORD1004",
+      "customer_id": "CUST02",
+      "product": "Laptop Stand",
+      "purchase_date": "2026-09-10",
+      "amount": 29.99,
+      "currency": "USD",
+      "status": "processing",
+      "delivery_date": null
+    },
+    {
+      "order_id": "ORD1005",
+      "customer_id": "CUST03",
+      "product": "Mechanical Keyboard",
+      "purchase_date": "2026-08-01",
+      "amount": 89.00,
+      "currency": "USD",
+      "status": "delivered",
+      "delivery_date": "2026-08-05"
+    },
+    {
+      "order_id": "ORD1006",
+      "customer_id": "CUST03",
+      "product": "USB-C Hub",
+      "purchase_date": "2026-09-12",
+      "amount": 24.99,
+      "currency": "USD",
+      "status": "cancelled",
+      "delivery_date": null
+    }
+  ]
+}
