@@ -117,43 +117,67 @@ class TestMemoryStore(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# Agent Integration Tests (mocked LLM)
+# Agent Integration Tests (real run() loop with mocked OpenAI boundary)
 # ---------------------------------------------------------------------------
 
 class TestAgentIntegration(unittest.TestCase):
 
-    @patch("agent.run")
-    def test_agent_returns_string(self, mock_run):
-        mock_run.return_value = "Your order ORD1001 has been delivered."
+    @patch("agent._client")
+    def test_run_executes_tool_call_then_returns_final_response(self, mock_client):
         from agent import run
+
+        tool_call = MagicMock()
+        tool_call.id = "call_123"
+        tool_call.function.name = "lookup_order"
+        tool_call.function.arguments = '{"order_id": "ORD1001"}'
+
+        first_response = MagicMock()
+        first_response.choices = [MagicMock(message=MagicMock(tool_calls=[tool_call], content=None))]
+
+        final_response = MagicMock()
+        final_response.choices = [MagicMock(message=MagicMock(tool_calls=[], content="Your order ORD1001 was delivered on 2025-02-10."))]
+
+        mock_client.chat.completions.create.side_effect = [first_response, final_response]
+
         response = run("user_001", [], "What is the status of ORD1001?")
-        self.assertIsInstance(response, str)
-        self.assertGreater(len(response), 0)
 
-    @patch("agent.run")
-    def test_agent_handles_policy_question(self, mock_run):
-        mock_run.return_value = "You can return items within 15 days."
-        from agent import run
-        response = run("user_001", [], "What is your return policy?")
-        self.assertIsInstance(response, str)
+        self.assertEqual(response, "Your order ORD1001 was delivered on 2025-02-10.")
+        self.assertEqual(mock_client.chat.completions.create.call_count, 2)
 
-    @patch("agent.run")
-    def test_agent_uses_conversation_history(self, mock_run):
-        mock_run.return_value = "Yes, your order ORD1002 is still being shipped."
+    @patch("agent.save_preference")
+    @patch("agent._client")
+    def test_run_saves_preference_for_replacement_request(self, mock_client, mock_save_preference):
         from agent import run
+
+        final_response = MagicMock()
+        final_response.choices = [MagicMock(message=MagicMock(tool_calls=[], content="I can help with a replacement."))]
+        mock_client.chat.completions.create.return_value = final_response
+
+        run("user_007", [], "I want a replacement for my order")
+
+        mock_save_preference.assert_called_once_with("user_007", "replacement")
+
+    @patch("agent._client")
+    def test_run_uses_conversation_history_when_building_messages(self, mock_client):
+        from agent import run
+
+        final_response = MagicMock()
+        final_response.choices = [MagicMock(message=MagicMock(tool_calls=[], content="Yes, that's for ORD1002."))]
+        mock_client.chat.completions.create.return_value = final_response
+
         history = [
             {"role": "user", "content": "I have an issue with my order."},
             {"role": "assistant", "content": "Sure, what is your order ID?"},
         ]
-        response = run("user_001", history, "It's ORD1002")
-        self.assertIsInstance(response, str)
 
-    @patch("agent.run", side_effect=Exception("LLM unavailable"))
-    def test_agent_failure_is_handled_gracefully(self, mock_run):
-        from agent import run
-        with self.assertRaises(Exception) as ctx:
-            run("user_001", [], "Hello")
-        self.assertIn("LLM unavailable", str(ctx.exception))
+        run("user_002", history, "It's ORD1002")
+
+        payload = mock_client.chat.completions.create.call_args.kwargs
+        self.assertIn("messages", payload)
+        self.assertEqual(payload["messages"][0]["role"], "system")
+        self.assertEqual(payload["messages"][-1]["content"], "It's ORD1002")
+        self.assertEqual(payload["messages"][1]["role"], "user")
+        self.assertEqual(payload["messages"][1]["content"], "I have an issue with my order.")
 
 
 # ---------------------------------------------------------------------------
