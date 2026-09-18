@@ -1,10 +1,10 @@
 """
-Person C - Application Layer
+ Application Layer
 =============================
 CLI entry point. Manages user session, conversation history,
 and delegates to the agent for each user turn.
 
-Expected agent interface (Person B):
+Expected agent interface :
     agent.run(user_id: str, history: list[dict], user_message: str) -> str
 """
 

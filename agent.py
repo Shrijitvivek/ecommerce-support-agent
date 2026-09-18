@@ -43,6 +43,10 @@ client = OpenAI(
 
 def ask_llm(user_message, user_id="user_001", history=None):
 
+    # Log the user's request for the agent trace
+    print("User request:", user_message)
+
+
     # --------------------------------------------------
     # Save user's preferred resolution if mentioned
     # --------------------------------------------------
@@ -66,12 +70,16 @@ def ask_llm(user_message, user_id="user_001", history=None):
 
     preference = get_preference(user_id)
 
-    # Add the saved customer preference to the conversation context
+    # Add the saved customer preference to the conversation
+    # context if one exists
     if preference:
         preference_message = {
-        "role": "system",
-        "content": f"The customer's saved preferred resolution is: {preference}."
-    }
+            "role": "system",
+            "content": (
+                f"The customer's saved preferred resolution "
+                f"is: {preference}."
+            )
+        }
     else:
         preference_message = None
 
@@ -83,15 +91,33 @@ def ask_llm(user_message, user_id="user_001", history=None):
     response = client.responses.create(
         model="gpt-5.6-sol",
 
-       input=(
-    [preference_message] + history
-    if preference_message and history
-    else [preference_message, {"role": "user", "content": user_message}]
-    if preference_message
-    else history if history else user_message
-),
+        # Rules the LLM must follow
+        instructions=(
+            "You are an e-commerce customer support agent. "
+            "Use only information provided by the available tools. "
+            "Never invent or guess order details, order status, "
+            "return policies, refund policies, or replacement policies. "
+            "If a tool fails or cannot find the requested information, "
+            "clearly tell the customer that the information "
+            "could not be found."
+        ),
 
-        # Give the LLM access to our tools.
+        # Send conversation history and customer preference
+        input=(
+            [preference_message] + history
+            if preference_message and history
+            else [
+                preference_message,
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ]
+            if preference_message
+            else history if history else user_message
+        ),
+
+        # Give the LLM access to our tools
         tools=OPENAI_TOOL_SCHEMAS,
     )
 
@@ -120,7 +146,7 @@ def ask_llm(user_message, user_id="user_001", history=None):
 
         for item in response.output:
 
-            # We only process function/tool calls here.
+            # We only process function/tool calls here
             if item.type == "function_call":
 
                 # Convert JSON arguments into a Python dictionary
@@ -163,10 +189,11 @@ def ask_llm(user_message, user_id="user_001", history=None):
 
 
                 # --------------------------------------------------
-                # Print tool trace for demonstration/debugging
+                # Print tool trace
                 # --------------------------------------------------
 
                 print("Tool selected:", item.name)
+                print("Tool input:", arguments)
                 print("Tool result:", result)
 
 
@@ -180,9 +207,7 @@ def ask_llm(user_message, user_id="user_001", history=None):
                 tool_outputs.append(
                     {
                         "type": "function_call_output",
-
                         "call_id": item.call_id,
-
                         "output": json.dumps(result),
                     }
                 )
@@ -195,7 +220,13 @@ def ask_llm(user_message, user_id="user_001", history=None):
 
         if not tool_outputs:
 
-            return response.output_text
+            # Get the final answer from the LLM
+            final_response = response.output_text
+
+            # Log the final response for the agent trace
+            print("Final response:", final_response)
+
+            return final_response
 
 
         # --------------------------------------------------

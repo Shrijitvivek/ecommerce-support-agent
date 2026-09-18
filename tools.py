@@ -1,5 +1,5 @@
 """
-Person A - Tools & Data Layer
+ Tools & Data Layer
 ==============================
 This module provides the two required business tools for the
 e-commerce customer support agent:
