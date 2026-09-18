@@ -1,12 +1,16 @@
 """
-Person A - Tools & Data Layer
-==============================
 This module provides the two required business tools for the
 e-commerce customer support agent:
 
     1. lookup_order(order_id)   -> Order Lookup Tool
     2. search_policy(query)     -> Policy Search Tool
 
+Design contract 
+
+- Every function returns a plain dict, ALWAYS with a "success" boolean key.
+- On success:   {"success": True, "data": {...}}
+- On failure:   {"success": False, "error": "<short machine-readable code>",
+                 "message": "<human-readable explanation>"}
 
 """
 
@@ -32,7 +36,6 @@ def _load_orders():
 
 def _load_policies():
     return _load_json(POLICY_PATH)["policies"]
-
 
 
 # Tool 1: Order Lookup
@@ -82,6 +85,7 @@ def lookup_order(order_id):
 
 
 # Tool 2: Policy Search
+
 
 def search_policy(query):
     """
@@ -137,62 +141,58 @@ def search_policy(query):
         },
     }
 
-# OpenAI function-calling schemas (hand these to Person B)
+
+
+# OpenAI tool schemas
+#
 
 
 OPENAI_TOOL_SCHEMAS = [
     {
         "type": "function",
-        "function": {
-            "name": "lookup_order",
-            "description": (
-                "Look up a customer order by its order ID to get its status, "
-                "purchase date, product, and amount. Use this any time the user "
-                "asks about a specific order or its eligibility for return, "
-                "instead of guessing the order's status."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "order_id": {
-                        "type": "string",
-                        "description": "The order ID, e.g. 'ORD1002'.",
-                    }
-                },
-                "required": ["order_id"],
+        "name": "lookup_order",
+        "description": (
+            "Look up an order by its order ID to get its status, product, "
+            "amount, purchase date, and delivery date."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "order_id": {
+                    "type": "string",
+                    "description": "The order ID to look up, e.g. 'ORD1002'.",
+                }
             },
+            "required": ["order_id"],
+            "additionalProperties": False,
         },
     },
     {
         "type": "function",
-        "function": {
-            "name": "search_policy",
-            "description": (
-                "Search the store's return/refund/replacement policy for a given "
-                "topic or question. Use this any time the user asks about return "
-                "windows, refund timing, replacement eligibility, or exceptions, "
-                "instead of answering from general knowledge."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": (
-                            "The policy topic or question, e.g. 'return window', "
-                            "'how long does a refund take', 'can I get a replacement'."
-                        ),
-                    }
-                },
-                "required": ["query"],
+        "name": "search_policy",
+        "description": (
+            "Search the store's return/refund/replacement policy knowledge "
+            "base for information matching a customer's question or topic."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": (
+                        "Free-text topic or question, e.g. 'return window' "
+                        "or 'can I get a refund'."
+                    ),
+                }
             },
+            "required": ["query"],
+            "additionalProperties": False,
         },
     },
 ]
 
 
-
-# Self-test / demo
+# Self-test
 
 
 if __name__ == "__main__":
