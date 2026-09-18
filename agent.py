@@ -99,7 +99,11 @@ def ask_llm(user_message, user_id="user_001", history=None):
             "return policies, refund policies, or replacement policies. "
             "If a tool fails or cannot find the requested information, "
             "clearly tell the customer that the information "
-            "could not be found."
+            "could not be found. "
+            "If the request is unrelated to e-commerce support, "
+            "politely ask the customer to provide an order ID or ask "
+            "about returns, refunds, replacements, or store policies. "
+            "Do not call a tool for unrelated requests."
         ),
 
         # Send conversation history and customer preference
